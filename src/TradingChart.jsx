@@ -1,55 +1,54 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { createChart } from 'lightweight-charts';
+import React, { useEffect, useRef } from 'react';
+import { createChart, CandlestickSeries } from 'lightweight-charts';
 
 // Generate realistic dummy OHLC data
 const generateDummyData = () => {
   const data = [];
   let currentDate = new Date(2026, 0, 1);
   let currentPrice = 4220;
-  
+
   for (let i = 0; i < 150; i++) {
-    const volatility = 20;
-    
     let moveBias = (Math.random() - 0.5) * 10;
-    if (i < 70) moveBias -= 4;  // downtrend first half
-    else moveBias += 4;          // uptrend second half
+    if (i < 70) moveBias -= 4;
+    else moveBias += 4;
 
     const open = currentPrice + moveBias;
-    const high = open + Math.random() * volatility;
-    const low = open - Math.random() * volatility;
+    const high = open + Math.random() * 20;
+    const low = open - Math.random() * 20;
     const close = low + Math.random() * (high - low);
-    
-    data.push({ 
-      time: `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2,'0')}-${String(currentDate.getDate()).padStart(2,'0')}`,
-      open: Number(open.toFixed(2)), 
-      high: Number(high.toFixed(2)), 
-      low: Number(low.toFixed(2)), 
-      close: Number(close.toFixed(2)) 
+
+    const y = currentDate.getFullYear();
+    const m = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const d = String(currentDate.getDate()).padStart(2, '0');
+
+    data.push({
+      time: `${y}-${m}-${d}`,
+      open: Number(open.toFixed(2)),
+      high: Number(high.toFixed(2)),
+      low: Number(low.toFixed(2)),
+      close: Number(close.toFixed(2)),
     });
-    
+
     currentDate.setDate(currentDate.getDate() + 1);
     currentPrice = close;
   }
   return data;
 };
 
+const CHART_DATA = generateDummyData();
+
 export const TradingChart = ({ data }) => {
-  const chartContainerRef = useRef(null);
-  const chartData = useRef(data || generateDummyData());
+  const containerRef = useRef(null);
 
   useEffect(() => {
-    const container = chartContainerRef.current;
-    if (!container) return;
+    const el = containerRef.current;
+    if (!el) return;
 
-    // Force explicit pixel dimensions
-    const W = container.offsetWidth || 550;
-    const H = container.offsetHeight || 350;
-
-    const chart = createChart(container, {
-      width: W,
-      height: H,
+    const chart = createChart(el, {
+      width: el.offsetWidth || 600,
+      height: el.offsetHeight || 390,
       layout: {
-        background: { type: 'solid', color: '#ffffff' },
+        background: { color: '#ffffff' },
         textColor: '#333333',
         attributionLogo: false,
       },
@@ -58,14 +57,15 @@ export const TradingChart = ({ data }) => {
         horzLines: { color: 'rgba(0,0,0,0.04)' },
       },
       crosshair: {
-        vertLine: { color: '#758696', width: 1, style: 1, labelBackgroundColor: '#758696' },
-        horzLine: { color: '#758696', width: 1, style: 1, labelBackgroundColor: '#758696' },
+        vertLine: { color: '#758696', labelBackgroundColor: '#758696' },
+        horzLine: { color: '#758696', labelBackgroundColor: '#758696' },
       },
       rightPriceScale: { borderColor: 'rgba(0,0,0,0.1)' },
       timeScale: { borderColor: 'rgba(0,0,0,0.1)', timeVisible: false },
     });
 
-    const series = chart.addCandlestickSeries({
+    // lightweight-charts v5 API: addSeries(SeriesClass, options)
+    const series = chart.addSeries(CandlestickSeries, {
       upColor: '#22c55e',
       downColor: '#ef4444',
       borderVisible: false,
@@ -73,49 +73,46 @@ export const TradingChart = ({ data }) => {
       wickDownColor: '#ef4444',
     });
 
-    series.setData(chartData.current);
+    series.setData(data || CHART_DATA);
 
-    // Price Lines (like Resistance/Support in the image)
-    series.createPriceLine({ price: 4104.0, color: '#f59e0b', lineWidth: 2, axisLabelVisible: true, title: 'Resistance' });
-    series.createPriceLine({ price: 4014.4, color: '#f59e0b', lineWidth: 2, axisLabelVisible: true, title: 'Support' });
-    series.createPriceLine({ price: 3945.0, color: '#8b5cf6', lineWidth: 2, axisLabelVisible: true, title: 'Demand Zone' });
+    // Support & Resistance price lines
+    series.createPriceLine({ price: 4104.0, color: '#f59e0b', lineWidth: 2, axisLabelVisible: true, title: 'مقاومة' });
+    series.createPriceLine({ price: 4014.4, color: '#f59e0b', lineWidth: 2, axisLabelVisible: true, title: 'دعم' });
+    series.createPriceLine({ price: 3945.0, color: '#8b5cf6', lineWidth: 2, axisLabelVisible: true, title: 'منطقة طلب' });
 
     chart.timeScale().fitContent();
 
-    // Resize observer
+    // Handle resize
     const ro = new ResizeObserver(() => {
-      if (!container) return;
-      chart.applyOptions({
-        width: container.offsetWidth,
-        height: container.offsetHeight,
-      });
+      if (!el) return;
+      chart.applyOptions({ width: el.offsetWidth, height: el.offsetHeight });
     });
-    ro.observe(container);
+    ro.observe(el);
 
     return () => {
       ro.disconnect();
       chart.remove();
     };
-  }, []);
+  }, [data]);
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      {/* Top toolbar header row */}
+      {/* Top info bar mimicking TradingView header */}
       <div style={{
-        position: 'absolute', top: 0, left: 0, right: 0, height: '28px',
-        background: 'white', borderBottom: '1px solid #e5e7eb',
+        position: 'absolute', top: 0, left: 0, right: 0, height: '26px',
+        background: '#fff', borderBottom: '1px solid #e5e7eb',
         display: 'flex', alignItems: 'center', padding: '0 8px',
         fontSize: '10px', color: '#6b7280', gap: '8px',
-        zIndex: 10, pointerEvents: 'none', flexDirection: 'row-reverse'
+        zIndex: 10, pointerEvents: 'none', direction: 'rtl',
       }}>
-        <span>TradingView.com 05:28 2026 ,17 يوليو UTC+1</span>
-        <span>الذهب / دولار أمريكي · 1 سا · OANDA</span>
-        <span style={{color:'#ef4444'}}>O 3,991.415 H 3,991.765 L 3,985.240 C 3,986.675 -4.760 (-0.12%)</span>
+        <span>TradingView.com · يوليو 17, 2026 · UTC+1</span>
+        <span>الذهب / دولار أمريكي · OANDA · 1 ساعة</span>
+        <span style={{ color: '#ef4444' }}>O 3,991.415 &nbsp; H 3,991.765 &nbsp; L 3,985.240 &nbsp; C 3,986.675 &nbsp; -4.760 (-0.12%)</span>
       </div>
-      {/* Chart mounts here - pushed down by 28px to avoid overlap with header */}
+      {/* Actual chart container pushed below header */}
       <div
-        ref={chartContainerRef}
-        style={{ position: 'absolute', top: '28px', left: 0, right: 0, bottom: 0 }}
+        ref={containerRef}
+        style={{ position: 'absolute', top: '26px', left: 0, right: 0, bottom: 0 }}
       />
     </div>
   );
