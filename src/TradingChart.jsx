@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { createChart, ColorType } from 'lightweight-charts';
+import { createChart } from 'lightweight-charts';
 
 // Generate realistic dummy data that looks like the trend in the image
 const generateDummyData = () => {
@@ -23,11 +23,12 @@ const generateDummyData = () => {
     const low = open - Math.random() * volatility;
     const close = low + Math.random() * (high - low);
     
-    // YYYY-MM-DD string format (safest for lightweight-charts daily data)
-    const time = currentDate.toISOString().split('T')[0];
-    
     data.push({ 
-      time, 
+      time: { 
+        year: currentDate.getFullYear(), 
+        month: currentDate.getMonth() + 1, 
+        day: currentDate.getDate() 
+      }, 
       open: Number(open.toFixed(2)), 
       high: Number(high.toFixed(2)), 
       low: Number(low.toFixed(2)), 
@@ -61,7 +62,7 @@ export const TradingChart = ({ data, containerClassName = "" }) => {
         width: chartContainerRef.current.clientWidth || 600,
         height: chartContainerRef.current.clientHeight || 400,
         layout: {
-          background: { type: ColorType.Solid, color: '#ffffff' },
+          background: { type: 'solid', color: '#ffffff' },
           textColor: '#333333',
           attributionLogo: false,
         },
@@ -95,7 +96,6 @@ export const TradingChart = ({ data, containerClassName = "" }) => {
           price: 4104.0,
           color: '#f59e0b',
           lineWidth: 2,
-          lineStyle: 0,
           axisLabelVisible: true,
           title: 'Resistance',
       });
@@ -104,7 +104,6 @@ export const TradingChart = ({ data, containerClassName = "" }) => {
           price: 4014.4,
           color: '#f59e0b',
           lineWidth: 2,
-          lineStyle: 0,
           axisLabelVisible: true,
           title: 'Support',
       });
@@ -113,7 +112,6 @@ export const TradingChart = ({ data, containerClassName = "" }) => {
           price: 3945.0,
           color: '#8b5cf6',
           lineWidth: 2,
-          lineStyle: 0,
           axisLabelVisible: true,
           title: 'Demand Zone',
       });
