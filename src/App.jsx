@@ -56,9 +56,12 @@ function App() {
 
         {/* Center Chart Section */}
         <main className="flex-1 w-full px-6 md:px-12 relative z-20 flex flex-col items-center justify-center mb-8">
-          <div className="relative w-full aspect-[16/9] md:h-[450px] bg-white border-[5px] border-black shadow-2xl rounded-sm overflow-hidden" dir="ltr">
-            
-            {/* Chart inside */}
+          <div
+            className="relative w-full bg-white border-[5px] border-black shadow-2xl rounded-sm overflow-hidden"
+            dir="ltr"
+            style={{ height: '420px' }}
+          >
+            {/* Live Interactive Chart */}
             <TradingChart />
 
             {/* Overlapping badge at bottom center */}
@@ -67,6 +70,7 @@ function App() {
             </div>
           </div>
         </main>
+
 
         {/* Bottom Section */}
         <footer className="w-full relative z-30 pb-8 pt-4 flex flex-col items-center mt-auto">
