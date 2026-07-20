@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { createChart, CandlestickSeries, LineSeries } from 'lightweight-charts';
+import { createChart } from 'lightweight-charts';
 
 // Generate deterministic data to exactly match the requested chart analysis
 const generateChartData = () => {
@@ -122,7 +122,7 @@ export const TradingChart = () => {
       width: el.offsetWidth || 800,
       height: el.offsetHeight || 500,
       layout: {
-        background: { color: '#ffffff' },
+        background: { type: 'solid', color: '#ffffff' },
         textColor: '#333333',
         attributionLogo: false,
       },
@@ -139,7 +139,7 @@ export const TradingChart = () => {
     });
 
     // 1. Candlestick Series
-    const series = chart.addSeries(CandlestickSeries, {
+    const series = chart.addCandlestickSeries({
       upColor: '#22c55e',
       downColor: '#ef4444',
       borderVisible: false,
@@ -155,7 +155,7 @@ export const TradingChart = () => {
     series.createPriceLine({ price: 3945.0, color: '#8b5cf6', lineWidth: 2, axisLabelVisible: true, title: 'منطقة طلب' });
 
     // 3. Elliot Waves (Black zigzag lines)
-    const waveSeries = chart.addSeries(LineSeries, {
+    const waveSeries = chart.addLineSeries({
       color: '#000000',
       lineWidth: 2,
       crosshairMarkerVisible: false,
@@ -166,7 +166,7 @@ export const TradingChart = () => {
     waveSeries.setData(CHART_DATA.wavePoints.slice(1, -1));
 
     // 4. Purple Descending Trendline
-    const purpleSeries = chart.addSeries(LineSeries, {
+    const purpleSeries = chart.addLineSeries({
       color: '#8b5cf6',
       lineWidth: 2,
       crosshairMarkerVisible: false,
@@ -176,7 +176,7 @@ export const TradingChart = () => {
     purpleSeries.setData(CHART_DATA.purpleLine);
 
     // 5. Red Ascending Trendline
-    const redSeries = chart.addSeries(LineSeries, {
+    const redSeries = chart.addLineSeries({
       color: '#ef4444',
       lineWidth: 2,
       crosshairMarkerVisible: false,
