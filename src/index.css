@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body, #root { width: 100%; height: 100%; overflow: hidden; }
+
 @theme {
   --color-navy: #051024;
   --color-gold: #D4AF37;
