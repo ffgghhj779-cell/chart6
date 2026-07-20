@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy: #051024;
+  --color-gold: #D4AF37;
+  --color-gold-light: #FADB5F;
+  --font-arabic: 'Tajawal', sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-arabic);
+  background-color: var(--color-navy);
+  color: white;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom grid texture background overlay */
+.bg-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+/* Diagonal cuts */
+.clip-diagonal-tr {
+  clip-path: polygon(0 0, calc(100% - 40px) 0, 100% 40px, 100% 100%, 0 100%);
+}
+.clip-diagonal-bl {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 40px 100%, 0 calc(100% - 40px));
+}
+
+/* Breaking news ribbon cut */
+.clip-ribbon-left {
+  clip-path: polygon(20px 0, 100% 0, 100% 100%, 0 100%);
+}
