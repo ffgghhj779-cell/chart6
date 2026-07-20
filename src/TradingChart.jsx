@@ -104,6 +104,17 @@ export const TradingChart = () => {
           crosshair: { vertLine: { color: '#758696', labelBackgroundColor: '#758696', style: 1 }, horzLine: { color: '#758696', labelBackgroundColor: '#758696', style: 1 } },
           rightPriceScale: { borderColor: 'rgba(0,0,0,0.1)' },
           timeScale: { borderColor: 'rgba(0,0,0,0.1)', timeVisible: false },
+          handleScroll: {
+            mouseWheel: true,
+            pressedMouseMove: true,
+            horzTouchDrag: true,
+            vertTouchDrag: true,
+          },
+          handleScale: {
+            axisPressedMouseMove: true,
+            mouseWheel: true,
+            pinch: true,
+          },
         });
 
         // Add Main Candlesticks
@@ -172,9 +183,10 @@ export const TradingChart = () => {
         display: 'flex', alignItems: 'center', padding: '0 12px',
         fontSize: '11px', color: '#6b7280', gap: '12px',
         zIndex: 10, pointerEvents: 'none', direction: 'rtl',
+        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
       }}>
-        <span>TradingView.com · الذهب الحقيقي (PAXG/USDT) · البيانات: Binance · 1 يوم</span>
-        <span style={{ color: '#22c55e', fontWeight: 'bold' }}>● LIVE</span>
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>TradingView.com · الذهب الحقيقي (PAXG/USDT) · البيانات: Binance · 1 يوم</span>
+        <span style={{ color: '#22c55e', fontWeight: 'bold', flexShrink: 0 }}>● LIVE</span>
       </div>
       
       <div ref={containerRef} style={{ position: 'absolute', top: '30px', left: 0, right: 0, bottom: 0, opacity: loading ? 0 : 1 }} />
