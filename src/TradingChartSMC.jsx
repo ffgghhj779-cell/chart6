@@ -156,7 +156,7 @@ export const TradingChart = ({ onDataProcessed }) => {
         const liqPrice = minPrice + range * 0.6;
         const smallObPrice = minPrice + range * 0.35;
         const poiPrice = minPrice + range * 0.2;
-        const demandPrice = minPrice;
+        // demandPrice is already declared above
 
         series.createPriceLine({ price: bslPrice, color: '#64748b', lineWidth: 2, axisLabelVisible: true, title: 'BSL' });
         series.createPriceLine({ price: obPrice, color: '#64748b', lineWidth: 2, axisLabelVisible: true, title: 'OB' });
