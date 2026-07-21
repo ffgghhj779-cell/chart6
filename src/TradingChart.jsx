@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createChart } from 'lightweight-charts';
 
-export const TradingChart = () => {
+export const TradingChart = ({ onDataProcessed }) => {
   const containerRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -20,6 +20,7 @@ export const TradingChart = () => {
         const candles = [];
         let minPrice = Infinity;
         let maxPrice = -Infinity;
+        let lastClose = 0;
 
         rawData.forEach(d => {
           const date = new Date(d[0]);
@@ -34,12 +35,25 @@ export const TradingChart = () => {
           
           if (low < minPrice) minPrice = low;
           if (high > maxPrice) maxPrice = high;
+          lastClose = close;
 
           candles.push({
             time: `${y}-${m}-${day}`,
             open, high, low, close
           });
         });
+
+        const supportPrice = minPrice + (maxPrice-minPrice)*0.25;
+        const demandPrice = minPrice;
+        
+        if (onDataProcessed) {
+           onDataProcessed({
+               currentPrice: lastClose,
+               support: supportPrice,
+               resistance: maxPrice,
+               demandZone: demandPrice
+           });
+        }
 
         // 1. Dynamic ZigZag Algorithm for Elliot Waves simulation
         const deviation = (maxPrice - minPrice) * 0.10; // 10% of total range as reversal threshold
