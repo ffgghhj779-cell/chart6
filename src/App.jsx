@@ -48,7 +48,7 @@ function App() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05)_0%,transparent_70%)] pointer-events-none"></div>
 
       {/* Main Graphic Container */}
-      <div className="relative w-full max-w-4xl bg-[#051024] rounded-sm shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-white/5 overflow-hidden flex flex-col z-10 aspect-[4/5] md:aspect-auto md:min-h-[850px]">
+      <div className="relative w-full max-w-4xl bg-[#051024] rounded-sm shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-white/5 overflow-hidden flex flex-col z-10 min-h-[850px] h-auto">
         
         {/* Decorative corner cuts */}
         <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#D4AF37] to-yellow-600 clip-diagonal-tr opacity-90 z-20"></div>
@@ -57,10 +57,10 @@ function App() {
         {/* Top Header Section */}
         <header className="w-full flex items-center justify-between p-6 md:p-8 z-30">
           <div className="flex flex-col items-start gap-1">
-            <h1 className="text-4xl md:text-5xl font-black text-white drop-shadow-md tracking-tight">
+            <h1 className="text-3xl md:text-5xl font-black text-white drop-shadow-md tracking-tight">
               سعر الذهب اليوم
             </h1>
-            <h2 className="text-xl md:text-2xl font-bold text-[#FADB5F] drop-shadow-sm">
+            <h2 className="text-lg md:text-2xl font-bold text-[#FADB5F] drop-shadow-sm">
               أخبار الذهب والأسواق العالمية
             </h2>
           </div>
@@ -70,9 +70,9 @@ function App() {
         </header>
 
         {/* Center Chart Section */}
-        <main className="flex-1 w-full px-6 md:px-12 relative z-20 flex flex-col items-center justify-center mb-8">
+        <main className="flex-1 w-full px-4 md:px-12 relative z-20 flex flex-col items-center justify-center mb-10">
           <div
-            className="relative w-full bg-white border-[5px] border-black shadow-2xl rounded-sm overflow-hidden"
+            className="relative w-full bg-white border-[4px] md:border-[5px] border-black shadow-2xl rounded-sm overflow-hidden"
             dir="ltr"
             style={{ height: '420px' }}
           >
@@ -87,34 +87,34 @@ function App() {
         </main>
 
         {/* Bottom Section */}
-        <footer className="w-full relative z-30 pb-8 pt-4 flex flex-col items-center mt-auto">
+        <footer className="w-full relative z-30 pb-12 pt-16 flex flex-col items-center mt-auto">
           
           {/* Breaking News Ribbon (Starts from Right edge) */}
-          <div className="absolute right-0 top-0 h-12 w-64 bg-gradient-to-r from-[#FADB5F] to-[#D4AF37] text-black font-black text-2xl flex items-center justify-end px-6 shadow-lg rounded-l-md z-40 clip-ribbon-left group">
+          <div className="absolute right-0 top-0 h-10 md:h-12 w-56 md:w-64 bg-gradient-to-r from-[#FADB5F] to-[#D4AF37] text-black font-black text-xl md:text-2xl flex items-center justify-end px-6 shadow-lg rounded-l-md z-40 clip-ribbon-left group">
             {/* 3 Diagonal Stripes */}
             <div className="absolute left-2 top-0 bottom-0 w-12 flex space-x-1.5 space-x-reverse skew-x-[30deg]">
               <div className="w-2 h-full bg-black/80"></div>
               <div className="w-2 h-full bg-black/80"></div>
               <div className="w-2 h-full bg-black/80"></div>
             </div>
-            <span className="relative z-10 ml-12">خبر عاجل</span>
+            <span className="relative z-10 ml-8 md:ml-12">خبر عاجل</span>
           </div>
 
-          <div className="w-full text-center mt-20 px-4">
+          <div className="w-full text-center px-4 relative z-20">
             {/* Main Headline */}
-            <h3 className="text-3xl md:text-5xl font-black leading-tight mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+            <h3 className="text-2xl md:text-4xl font-black leading-snug mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
               <span className="text-white">فرصة شراء للذهب بين </span>
               <span className="text-[#FADB5F]" style={{ transition: 'all 0.5s ease-in-out' }}>{buyTarget1} و {buyTarget2}</span>
             </h3>
             
             {/* Subtext */}
-            <p className="text-2xl md:text-3xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+            <p className="text-xl md:text-2xl font-bold text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
               دولار وسط مؤشرات فنية داعمة للصعود
             </p>
           </div>
 
           {/* Footer Logo text */}
-          <div className="absolute bottom-4 right-6 text-white font-black text-xl tracking-wider opacity-90 drop-shadow-md">
+          <div className="absolute bottom-4 right-6 text-white/60 font-black text-lg md:text-xl tracking-wider drop-shadow-md pointer-events-none">
             GOLD2TODAY
           </div>
         </footer>
