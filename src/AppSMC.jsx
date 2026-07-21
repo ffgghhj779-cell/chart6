@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import TradingChart from './TradingChart';
+import TradingChart from './TradingChartSMC';
 
 const GoldenBadge = ({ className = "", size = "lg" }) => {
   const sizeClasses = {
@@ -21,7 +21,7 @@ const GoldenBadge = ({ className = "", size = "lg" }) => {
 };
 
 
-function App() {
+function AppSMC() {
   const [chartData, setChartData] = useState({
     currentPrice: null,
     support: null,
@@ -103,13 +103,17 @@ function App() {
           <div className="w-full text-center px-4 relative z-20">
             {/* Main Headline */}
             <h3 className="text-2xl md:text-4xl font-black leading-snug mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-              <span className="text-white">فرصة شراء للذهب بين </span>
-              <span className="text-[#FADB5F]" style={{ transition: 'all 0.5s ease-in-out' }}>{buyTarget1} و {buyTarget2}</span>
+              <span className="text-[#FADB5F]">الذهب يحاول التعافي</span>
             </h3>
             
-            {/* Subtext */}
-            <p className="text-xl md:text-2xl font-bold text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-              دولار وسط مؤشرات فنية داعمة للصعود
+            {/* Subtext 1 */}
+            <p className="text-xl md:text-3xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] mb-2">
+              مؤشرات صعودية مؤقتة
+            </p>
+
+            {/* Subtext 2 */}
+            <p className="text-lg md:text-2xl font-bold text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+              وسط هيكل عام لا يزال تحت الضغط
             </p>
           </div>
 
@@ -124,4 +128,4 @@ function App() {
   );
 }
 
-export default App;
+export default AppSMC;

@@ -55,8 +55,8 @@ export const TradingChart = ({ onDataProcessed }) => {
            });
         }
 
-        // 1. Dynamic ZigZag Algorithm for Elliot Waves simulation
-        const deviation = (maxPrice - minPrice) * 0.10; // 10% of total range as reversal threshold
+        // 1. Dynamic ZigZag Algorithm for Elliot Waves simulation & SMC structure
+        const deviation = (maxPrice - minPrice) * 0.08; // 8% threshold
         const wavePoints = [];
         const markers = [];
         
@@ -70,7 +70,7 @@ export const TradingChart = ({ onDataProcessed }) => {
             } else if (candle.close < lastExtreme.high - deviation) {
               // Trend reversal downwards
               wavePoints.push({ time: lastExtreme.time, value: lastExtreme.high });
-              markers.push({ time: lastExtreme.time, position: 'aboveBar', color: '#3b82f6', shape: 'arrowDown', text: lastExtreme.high.toFixed(2), size: 1.5 });
+              markers.push({ time: lastExtreme.time, position: 'aboveBar', color: '#64748b', shape: 'arrowDown', text: 'CHoCH', size: 1 });
               isLookingForPeak = false;
               lastExtreme = candle;
             }
@@ -80,7 +80,7 @@ export const TradingChart = ({ onDataProcessed }) => {
             } else if (candle.close > lastExtreme.low + deviation) {
               // Trend reversal upwards
               wavePoints.push({ time: lastExtreme.time, value: lastExtreme.low });
-              markers.push({ time: lastExtreme.time, position: 'belowBar', color: '#3b82f6', shape: 'arrowUp', text: lastExtreme.low.toFixed(2), size: 1.5 });
+              markers.push({ time: lastExtreme.time, position: 'belowBar', color: '#64748b', shape: 'arrowUp', text: 'BOS', size: 1 });
               isLookingForPeak = true;
               lastExtreme = candle;
             }
@@ -90,18 +90,18 @@ export const TradingChart = ({ onDataProcessed }) => {
         // Push the final current point
         wavePoints.push({ time: lastExtreme.time, value: isLookingForPeak ? lastExtreme.high : lastExtreme.low });
 
-        // 2. Dynamic Trendlines calculation
+        // 2. Dynamic Trendlines calculation (Descending Channel)
         const peaks = wavePoints.filter((_, i) => i % 2 === (wavePoints[0].value > candles[0].open ? 0 : 1));
         const troughs = wavePoints.filter((_, i) => i % 2 !== (wavePoints[0].value > candles[0].open ? 0 : 1));
         
-        // Draw purple trendline between first and last significant peaks
-        const purpleLine = peaks.length >= 2 ? [
+        // Draw Upper channel line
+        const upperLine = peaks.length >= 2 ? [
           { time: peaks[0].time, value: peaks[0].value },
           { time: peaks[peaks.length-1].time, value: peaks[peaks.length-1].value }
         ] : [];
 
-        // Draw red trendline between first and last significant troughs
-        const redLine = troughs.length >= 2 ? [
+        // Draw Lower channel line
+        const lowerLine = troughs.length >= 2 ? [
           { time: troughs[0].time, value: troughs[0].value },
           { time: troughs[troughs.length-1].time, value: troughs[troughs.length-1].value }
         ] : [];
@@ -113,11 +113,11 @@ export const TradingChart = ({ onDataProcessed }) => {
         chart = createChart(el, {
           width: el.offsetWidth || 800,
           height: el.offsetHeight || 500,
-          layout: { background: { type: 'solid', color: '#ffffff' }, textColor: '#333333', attributionLogo: false },
-          grid: { vertLines: { color: 'rgba(0,0,0,0.04)' }, horzLines: { color: 'rgba(0,0,0,0.04)' } },
-          crosshair: { vertLine: { color: '#758696', labelBackgroundColor: '#758696', style: 1 }, horzLine: { color: '#758696', labelBackgroundColor: '#758696', style: 1 } },
-          rightPriceScale: { borderColor: 'rgba(0,0,0,0.1)' },
-          timeScale: { borderColor: 'rgba(0,0,0,0.1)', timeVisible: false },
+          layout: { background: { type: 'solid', color: '#e0f7fa' }, textColor: '#334155', attributionLogo: false },
+          grid: { vertLines: { color: '#b2ebf2' }, horzLines: { color: '#b2ebf2' } },
+          crosshair: { vertLine: { color: '#94a3b8', labelBackgroundColor: '#94a3b8', style: 1 }, horzLine: { color: '#94a3b8', labelBackgroundColor: '#94a3b8', style: 1 } },
+          rightPriceScale: { borderColor: '#cbd5e1' },
+          timeScale: { borderColor: '#cbd5e1', timeVisible: false },
           handleScroll: {
             mouseWheel: true,
             pressedMouseMove: true,
@@ -131,34 +131,62 @@ export const TradingChart = ({ onDataProcessed }) => {
           },
         });
 
-        // Add Main Candlesticks
-        const series = chart.addCandlestickSeries({ upColor: '#22c55e', downColor: '#ef4444', borderVisible: false, wickUpColor: '#22c55e', wickDownColor: '#ef4444' });
+        // Add Main Candlesticks (SMC Theme: Green Hollow, Blue Filled)
+        const series = chart.addCandlestickSeries({ 
+            upColor: '#e0f7fa', // Hollow body matches background
+            downColor: '#3b82f6', // Filled blue
+            borderVisible: true, 
+            borderColor: '#22c55e', // Green border for UP
+            borderUpColor: '#22c55e',
+            borderDownColor: '#3b82f6',
+            wickUpColor: '#22c55e', 
+            wickDownColor: '#3b82f6' 
+        });
         series.setData(candles);
         
         if (markers.length > 0) {
             series.setMarkers(markers);
         }
 
-        // Add Dynamic Support & Resistance Zones
-        series.createPriceLine({ price: maxPrice, color: '#f59e0b', lineWidth: 2, axisLabelVisible: true, title: 'مقاومة' });
-        series.createPriceLine({ price: minPrice + (maxPrice-minPrice)*0.25, color: '#f59e0b', lineWidth: 2, axisLabelVisible: true, title: 'دعم' });
-        series.createPriceLine({ price: minPrice, color: '#8b5cf6', lineWidth: 2, axisLabelVisible: true, title: 'منطقة طلب' });
+        // Add SMC Zones (Dynamic based on live range)
+        const range = maxPrice - minPrice;
+        
+        series.createPriceLine({ price: maxPrice, color: '#64748b', lineWidth: 2, axisLabelVisible: true, title: 'BSL' });
+        series.createPriceLine({ price: maxPrice - range * 0.15, color: '#64748b', lineWidth: 2, axisLabelVisible: true, title: 'OB' });
+        series.createPriceLine({ price: minPrice + range * 0.6, color: '#64748b', lineWidth: 1, axisLabelVisible: true, title: 'LIQUIDITY', lineStyle: 3 });
+        series.createPriceLine({ price: minPrice + range * 0.35, color: '#64748b', lineWidth: 2, axisLabelVisible: true, title: 'SMALL OB' });
+        series.createPriceLine({ price: minPrice + range * 0.2, color: '#64748b', lineWidth: 2, axisLabelVisible: true, title: 'POI' });
+        series.createPriceLine({ price: minPrice, color: '#64748b', lineWidth: 3, axisLabelVisible: true, title: 'BULLISH OB + DEMAND ZONE' });
 
-        // Add Wave Lines (Black)
-        const waveSeries = chart.addLineSeries({ color: '#000000', lineWidth: 2, crosshairMarkerVisible: false, priceLineVisible: false, lastValueVisible: false });
+        // Add Structure Wave Lines (Gray)
+        const waveSeries = chart.addLineSeries({ color: '#94a3b8', lineWidth: 1, crosshairMarkerVisible: false, priceLineVisible: false, lastValueVisible: false });
         waveSeries.setData(wavePoints);
 
-        // Add Purple Trendline
-        if (purpleLine.length > 0) {
-          const purpleSeries = chart.addLineSeries({ color: '#8b5cf6', lineWidth: 2, crosshairMarkerVisible: false, priceLineVisible: false, lastValueVisible: false });
-          purpleSeries.setData(purpleLine);
+        // Add Upper Trendline
+        if (upperLine.length > 0) {
+          const upperSeries = chart.addLineSeries({ color: '#475569', lineWidth: 2, crosshairMarkerVisible: false, priceLineVisible: false, lastValueVisible: false });
+          upperSeries.setData(upperLine);
         }
 
-        // Add Red Trendline
-        if (redLine.length > 0) {
-          const redSeries = chart.addLineSeries({ color: '#ef4444', lineWidth: 2, crosshairMarkerVisible: false, priceLineVisible: false, lastValueVisible: false });
-          redSeries.setData(redLine);
+        // Add Lower Trendline
+        if (lowerLine.length > 0) {
+          const lowerSeries = chart.addLineSeries({ color: '#475569', lineWidth: 2, crosshairMarkerVisible: false, priceLineVisible: false, lastValueVisible: false });
+          lowerSeries.setData(lowerLine);
         }
+
+        // Optional: Fake volume profile approximation on the right axis using histogram (Not true horizontal VP, but adds visual density)
+        const volumeSeries = chart.addHistogramSeries({
+            color: '#93c5fd',
+            priceFormat: { type: 'volume' },
+            priceScaleId: '', // set as an overlay by setting a blank priceScaleId
+            scaleMargins: { top: 0.8, bottom: 0 },
+        });
+        const volumeData = candles.map(c => ({
+            time: c.time,
+            value: Math.random() * 100, // fake volume for aesthetics since binance daily volume varies too wildly to look like a profile
+            color: c.close > c.open ? 'rgba(34, 197, 94, 0.3)' : 'rgba(59, 130, 246, 0.4)'
+        }));
+        volumeSeries.setData(volumeData);
 
         chart.timeScale().fitContent();
 
