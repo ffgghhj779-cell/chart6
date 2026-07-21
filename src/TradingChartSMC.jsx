@@ -148,15 +148,22 @@ export const TradingChart = ({ onDataProcessed }) => {
             series.setMarkers(markers);
         }
 
-        // Add SMC Zones (Dynamic based on live range)
+        // Add SMC Zones using Price Lines (for the lines themselves)
         const range = maxPrice - minPrice;
         
-        series.createPriceLine({ price: maxPrice, color: '#64748b', lineWidth: 2, axisLabelVisible: true, title: 'BSL' });
-        series.createPriceLine({ price: maxPrice - range * 0.15, color: '#64748b', lineWidth: 2, axisLabelVisible: true, title: 'OB' });
-        series.createPriceLine({ price: minPrice + range * 0.6, color: '#64748b', lineWidth: 1, axisLabelVisible: true, title: 'LIQUIDITY', lineStyle: 3 });
-        series.createPriceLine({ price: minPrice + range * 0.35, color: '#64748b', lineWidth: 2, axisLabelVisible: true, title: 'SMALL OB' });
-        series.createPriceLine({ price: minPrice + range * 0.2, color: '#64748b', lineWidth: 2, axisLabelVisible: true, title: 'POI' });
-        series.createPriceLine({ price: minPrice, color: '#64748b', lineWidth: 3, axisLabelVisible: true, title: 'BULLISH OB + DEMAND ZONE' });
+        const bslPrice = maxPrice;
+        const obPrice = maxPrice - range * 0.15;
+        const liqPrice = minPrice + range * 0.6;
+        const smallObPrice = minPrice + range * 0.35;
+        const poiPrice = minPrice + range * 0.2;
+        const demandPrice = minPrice;
+
+        series.createPriceLine({ price: bslPrice, color: '#64748b', lineWidth: 2, axisLabelVisible: true, title: 'BSL' });
+        series.createPriceLine({ price: obPrice, color: '#64748b', lineWidth: 2, axisLabelVisible: true, title: 'OB' });
+        series.createPriceLine({ price: liqPrice, color: '#64748b', lineWidth: 1, axisLabelVisible: true, title: 'LIQUIDITY', lineStyle: 3 });
+        series.createPriceLine({ price: smallObPrice, color: '#64748b', lineWidth: 2, axisLabelVisible: true, title: 'SMALL OB' });
+        series.createPriceLine({ price: poiPrice, color: '#64748b', lineWidth: 2, axisLabelVisible: true, title: 'POI' });
+        series.createPriceLine({ price: demandPrice, color: '#64748b', lineWidth: 3, axisLabelVisible: true, title: 'BULLISH OB + DEMAND ZONE' });
 
         // Add Structure Wave Lines (Gray)
         const waveSeries = chart.addLineSeries({ color: '#94a3b8', lineWidth: 1, crosshairMarkerVisible: false, priceLineVisible: false, lastValueVisible: false });
@@ -174,20 +181,6 @@ export const TradingChart = ({ onDataProcessed }) => {
           lowerSeries.setData(lowerLine);
         }
 
-        // Optional: Fake volume profile approximation on the right axis using histogram (Not true horizontal VP, but adds visual density)
-        const volumeSeries = chart.addHistogramSeries({
-            color: '#93c5fd',
-            priceFormat: { type: 'volume' },
-            priceScaleId: '', // set as an overlay by setting a blank priceScaleId
-            scaleMargins: { top: 0.8, bottom: 0 },
-        });
-        const volumeData = candles.map(c => ({
-            time: c.time,
-            value: Math.random() * 100, // fake volume for aesthetics since binance daily volume varies too wildly to look like a profile
-            color: c.close > c.open ? 'rgba(34, 197, 94, 0.3)' : 'rgba(59, 130, 246, 0.4)'
-        }));
-        volumeSeries.setData(volumeData);
-
         chart.timeScale().fitContent();
 
         ro = new ResizeObserver(() => {
@@ -197,6 +190,36 @@ export const TradingChart = ({ onDataProcessed }) => {
         ro.observe(el);
 
         setLoading(false);
+
+        // Custom HTML Overlays for SMC Labels
+        const labels = [
+          { id: 'label-bsl', price: bslPrice, text: 'BSL' },
+          { id: 'label-ob', price: obPrice, text: 'OB' },
+          { id: 'label-liq', price: liqPrice, text: 'LIQUIDITY' },
+          { id: 'label-smallob', price: smallObPrice, text: 'SMALL OB' },
+          { id: 'label-poi', price: poiPrice, text: 'POI' },
+          { id: 'label-demand', price: demandPrice, text: 'BULLISH OB + DEMAND ZONE' },
+        ];
+
+        const syncLabels = () => {
+          if (!series || !el) return;
+          labels.forEach(l => {
+            const dom = document.getElementById(l.id);
+            if (dom) {
+              const coord = series.priceToCoordinate(l.price);
+              if (coord !== null) {
+                dom.style.top = `${coord - 10}px`; // center vertically (height is 20px)
+                dom.innerText = l.text;
+                dom.style.display = 'flex';
+              } else {
+                dom.style.display = 'none';
+              }
+            }
+          });
+          requestAnimationFrame(syncLabels);
+        };
+        requestAnimationFrame(syncLabels);
+
       } catch (err) {
         console.error(err);
         setError("فشل في جلب البيانات الحية للأسواق");
@@ -213,7 +236,7 @@ export const TradingChart = ({ onDataProcessed }) => {
   }, []);
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
       {/* Loading & Error States */}
       {loading && <div style={{position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center', zIndex:50, color: '#333', background: '#fff', fontWeight: 'bold'}}>جاري تحميل البيانات الحية للذهب (Live API)...</div>}
       {error && <div style={{position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center', color:'red', zIndex:50, background: '#fff', fontWeight: 'bold'}}>{error}</div>}
@@ -230,8 +253,53 @@ export const TradingChart = ({ onDataProcessed }) => {
         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>TradingView.com · الذهب الحقيقي (PAXG/USDT) · البيانات: Binance · 1 يوم</span>
         <span style={{ color: '#22c55e', fontWeight: 'bold', flexShrink: 0 }}>● LIVE</span>
       </div>
+
+      {/* Giant Blue Triangle pointing down */}
+      <div style={{
+        position: 'absolute',
+        top: '30px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '0',
+        height: '0',
+        borderLeft: '40px solid transparent',
+        borderRight: '40px solid transparent',
+        borderTop: '50px solid #2563eb', // Big blue triangle
+        zIndex: 20,
+        pointerEvents: 'none'
+      }}></div>
       
       <div ref={containerRef} style={{ position: 'absolute', top: '30px', left: 0, right: 0, bottom: 0, opacity: loading ? 0 : 1 }} />
+
+      {/* Floating SMC Labels Overlay */}
+      {!loading && !error && (
+        <div style={{ position: 'absolute', top: '30px', left: 0, right: '50px', bottom: 0, pointerEvents: 'none', zIndex: 15 }}>
+          {['bsl', 'ob', 'liq', 'smallob', 'poi', 'demand'].map(id => (
+            <div
+              key={id}
+              id={`label-${id}`}
+              style={{
+                position: 'absolute',
+                right: '20px',
+                backgroundColor: 'rgba(100, 116, 139, 0.8)', // Slate 500
+                color: 'white',
+                fontSize: '10px',
+                fontWeight: 'bold',
+                padding: '2px 8px',
+                borderRadius: '2px',
+                display: 'none',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '20px',
+                whiteSpace: 'nowrap',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
+              }}
+            >
+              {/* Text will be set in syncLabels if needed, but we hardcoded id mapped to array so we can just let JS overlay handle text */}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
