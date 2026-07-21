@@ -123,31 +123,6 @@ export const TradingChart = ({ onDataProcessed }) => {
 
         setLoading(false);
 
-        // Custom HTML Overlays for Large Text (e.g. 50% fib = 4845)
-        const floatingLabels = [
-            { id: 'fib-50', price: fibLevels.find(f => f.level === 0.5).value, text: `50% fib = ${Math.round(fibLevels.find(f => f.level === 0.5).value)}` },
-            { id: 'fib-38', price: fibLevels.find(f => f.level === 0.382).value, text: `38% fib = ${Math.round(fibLevels.find(f => f.level === 0.382).value)}` },
-        ];
-
-        const syncLabels = () => {
-          if (!series || !el) return;
-          floatingLabels.forEach(l => {
-            const dom = document.getElementById(l.id);
-            if (dom) {
-              const coord = series.priceToCoordinate(l.price);
-              if (coord !== null) {
-                dom.style.top = `${coord - 45}px`; // Above the line slightly
-                dom.innerText = l.text;
-                dom.style.display = 'block';
-              } else {
-                dom.style.display = 'none';
-              }
-            }
-          });
-          requestAnimationFrame(syncLabels);
-        };
-        requestAnimationFrame(syncLabels);
-
         if (onDataProcessed) {
             onDataProcessed({ fibLevels, minPrice, maxPrice });
         }
@@ -191,45 +166,6 @@ export const TradingChart = ({ onDataProcessed }) => {
       {error && <div style={{position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center', color:'red', zIndex:50, background: '#000040', fontWeight: 'bold'}}>{error}</div>}
       
       <div ref={containerRef} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: loading ? 0 : 1 }} />
-
-      {/* Floating Fib Labels Overlay */}
-      {!loading && !error && (
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none', zIndex: 15 }}>
-          {['fib-50', 'fib-38'].map(id => (
-            <div
-              key={id}
-              id={id}
-              style={{
-                position: 'absolute',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                color: '#22c55e',
-                fontSize: '32px',
-                fontWeight: '900',
-                display: 'none',
-                whiteSpace: 'nowrap',
-                textShadow: '2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000',
-                fontFamily: 'serif'
-              }}
-            >
-            </div>
-          ))}
-
-          {/* Presenter Name (أشرف العايدي) in Green at bottom right */}
-          <div style={{
-              position: 'absolute',
-              bottom: '40px',
-              right: '80px',
-              color: '#22c55e',
-              fontSize: '32px',
-              fontWeight: '900',
-              textShadow: '2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000',
-              fontFamily: 'system-ui'
-          }}>
-              أشرف العايدي
-          </div>
-        </div>
-      )}
     </div>
   );
 };
