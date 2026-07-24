@@ -50,7 +50,7 @@ export const TradingChart = ({ onDataProcessed }) => {
         // We store them in a ref to pass after zone computation
 
         // 1. Dynamic ZigZag Algorithm for Elliot Waves simulation & SMC structure
-        const deviation = (maxPrice - minPrice) * 0.08; // 8% threshold
+        const deviation = (maxPrice - minPrice) * 0.12; // 12% threshold — fewer points on mobile
         const wavePoints = [];
         const markers = [];
         
@@ -83,6 +83,13 @@ export const TradingChart = ({ onDataProcessed }) => {
         
         // Push the final current point
         wavePoints.push({ time: lastExtreme.time, value: isLookingForPeak ? lastExtreme.high : lastExtreme.low });
+
+        // Only label the most recent 4 CHoCH/BOS markers to avoid crowding
+        const smcCutoff = markers.length > 4 ? markers[markers.length - 5].time : null;
+        const cleanSMCMarkers = markers.map(m => ({
+          ...m,
+          text: smcCutoff && m.time < smcCutoff ? '' : m.text
+        }));
 
         // 2. Dynamic Trendlines calculation (Descending Channel)
         const peaks = wavePoints.filter((_, i) => i % 2 === (wavePoints[0].value > candles[0].open ? 0 : 1));
@@ -138,8 +145,8 @@ export const TradingChart = ({ onDataProcessed }) => {
         });
         series.setData(candles);
         
-        if (markers.length > 0) {
-            series.setMarkers(markers);
+        if (cleanSMCMarkers.length > 0) {
+            series.setMarkers(cleanSMCMarkers);
         }
 
         // Add SMC Zones using Price Lines (for the lines themselves)
@@ -280,35 +287,7 @@ export const TradingChart = ({ onDataProcessed }) => {
       
       <div ref={containerRef} style={{ position: 'absolute', top: '30px', left: 0, right: 0, bottom: 0, opacity: loading ? 0 : 1 }} />
 
-      {/* Floating SMC Labels Overlay */}
-      {!loading && !error && (
-        <div style={{ position: 'absolute', top: '30px', left: 0, right: '50px', bottom: 0, pointerEvents: 'none', zIndex: 15 }}>
-          {['bsl', 'ob', 'liq', 'smallob', 'poi', 'demand'].map(id => (
-            <div
-              key={id}
-              id={`label-${id}`}
-              style={{
-                position: 'absolute',
-                right: '20px',
-                backgroundColor: 'rgba(100, 116, 139, 0.8)', // Slate 500
-                color: 'white',
-                fontSize: '10px',
-                fontWeight: 'bold',
-                padding: '2px 8px',
-                borderRadius: '2px',
-                display: 'none',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '20px',
-                whiteSpace: 'nowrap',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
-              }}
-            >
-              {/* Text will be set in syncLabels if needed, but we hardcoded id mapped to array so we can just let JS overlay handle text */}
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Floating SMC Labels REMOVED — axis labels from createPriceLine are sufficient and cleaner on mobile */}
     </div>
   );
 };

@@ -69,7 +69,7 @@ function App() {
           <div
             className="relative w-full bg-white border-[3px] md:border-[5px] border-black shadow-2xl rounded-sm overflow-hidden"
             dir="ltr"
-            style={{ height: 'clamp(260px, 48vw, 480px)' }}
+            style={{ height: 'clamp(320px, 55vw, 500px)' }}
           >
             <TradingChart onDataProcessed={handleDataProcessed} />
           </div>

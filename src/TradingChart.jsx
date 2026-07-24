@@ -56,7 +56,7 @@ export const TradingChart = ({ onDataProcessed }) => {
         }
 
         // 1. Dynamic ZigZag Algorithm for Elliot Waves simulation
-        const deviation = (maxPrice - minPrice) * 0.10; // 10% of total range as reversal threshold
+        const deviation = (maxPrice - minPrice) * 0.13; // 13% threshold — fewer points, less crowding on mobile
         const wavePoints = [];
         const markers = [];
         
@@ -89,6 +89,13 @@ export const TradingChart = ({ onDataProcessed }) => {
         
         // Push the final current point
         wavePoints.push({ time: lastExtreme.time, value: isLookingForPeak ? lastExtreme.high : lastExtreme.low });
+
+        // Only show price labels on the MOST RECENT 5 wave points to avoid crowding on mobile
+        const recentCutoff = wavePoints.length > 5 ? wavePoints[wavePoints.length - 6].time : null;
+        const cleanMarkers = markers.map(m => ({
+          ...m,
+          text: recentCutoff && m.time < recentCutoff ? '' : m.text
+        }));
 
         // 2. Dynamic Trendlines calculation
         const peaks = wavePoints.filter((_, i) => i % 2 === (wavePoints[0].value > candles[0].open ? 0 : 1));
@@ -135,8 +142,8 @@ export const TradingChart = ({ onDataProcessed }) => {
         const series = chart.addCandlestickSeries({ upColor: '#22c55e', downColor: '#ef4444', borderVisible: false, wickUpColor: '#22c55e', wickDownColor: '#ef4444' });
         series.setData(candles);
         
-        if (markers.length > 0) {
-            series.setMarkers(markers);
+        if (cleanMarkers.length > 0) {
+            series.setMarkers(cleanMarkers);
         }
 
         // Add Dynamic Support & Resistance Zones
