@@ -148,15 +148,17 @@ export const TradingChart = ({ onDataProcessed }) => {
       {!loading && !error && (
           <div style={{
               position: 'absolute',
-              top: '15px',
+              top: '12px',
               left: '50%',
               transform: 'translateX(-50%)',
-              color: '#fbbf24', // Amber 400
+              color: '#fbbf24',
               fontFamily: 'serif',
               fontWeight: '900',
-              fontSize: '36px',
+              fontSize: 'clamp(20px, 5vw, 36px)',
               zIndex: 10,
-              textShadow: '2px 2px 4px rgba(0,0,0,0.8)'
+              textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+              whiteSpace: 'nowrap',
+              letterSpacing: '2px'
           }}>
               XAUUSD
           </div>
