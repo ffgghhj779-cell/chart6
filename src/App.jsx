@@ -4,7 +4,7 @@ import TradingChart from './TradingChart';
 const GoldenBadge = ({ className = "", size = "lg" }) => {
   const sizeClasses = {
     sm: "w-16 h-16 text-xs",
-    lg: "w-24 h-24 text-sm"
+    lg: "w-20 h-20 text-sm md:w-24 md:h-24"
   };
 
   return (
@@ -14,12 +14,10 @@ const GoldenBadge = ({ className = "", size = "lg" }) => {
         <span className="text-yellow-400 font-bold text-2xl leading-none shadow-black drop-shadow-md">2</span>
         <span className="text-yellow-600 font-serif italic leading-none mt-1 text-[10px]">Today</span>
       </div>
-      {/* Decorative ribbon at bottom of badge */}
-      <div className="absolute -bottom-2 w-3/4 h-4 bg-gradient-to-r from-yellow-700 via-yellow-400 to-yellow-700 rounded-sm z-10 clip-diagonal-bl" style={{ clipPath: 'polygon(10% 0, 90% 0, 100% 100%, 0 100%)'}}></div>
+      <div className="absolute -bottom-2 w-3/4 h-4 bg-gradient-to-r from-yellow-700 via-yellow-400 to-yellow-700 rounded-sm z-10" style={{ clipPath: 'polygon(10% 0, 90% 0, 100% 100%, 0 100%)'}}></div>
     </div>
   );
 };
-
 
 function App() {
   const [chartData, setChartData] = useState({
@@ -33,91 +31,86 @@ function App() {
     setChartData(data);
   };
 
-  // Create dynamic news text based on live fetched data
   const isDataReady = chartData.currentPrice !== null;
   const buyTarget1 = isDataReady ? Math.floor(chartData.demandZone) : "---";
   const buyTarget2 = isDataReady ? Math.ceil(chartData.support) : "---";
 
   return (
-    <div className="min-h-screen bg-[#051024] flex items-center justify-center p-4 md:p-8 relative overflow-hidden">
+    <div className="min-h-screen bg-[#051024] flex items-center justify-center p-3 md:p-8 relative overflow-hidden">
       
-      {/* Background World Map / Grid overlay */}
+      {/* Background overlay */}
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none"></div>
-      
-      {/* Subtle radial gradient to center focus */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05)_0%,transparent_70%)] pointer-events-none"></div>
 
-      {/* Main Graphic Container */}
+      {/* Main Container */}
       <div className="relative w-full max-w-4xl bg-[#051024] rounded-sm shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-white/5 overflow-hidden flex flex-col z-10">
         
-        {/* Decorative corner cuts */}
-        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#D4AF37] to-yellow-600 clip-diagonal-tr opacity-90 z-20"></div>
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-[#D4AF37] to-yellow-600 clip-diagonal-bl opacity-90 z-20"></div>
+        {/* Decorative corners */}
+        <div className="absolute top-0 right-0 w-20 h-20 md:w-24 md:h-24 bg-gradient-to-bl from-[#D4AF37] to-yellow-600 opacity-90 z-20" style={{ clipPath: 'polygon(100% 0, 0 0, 100% 100%)' }}></div>
+        <div className="absolute bottom-0 left-0 w-20 h-20 md:w-24 md:h-24 bg-gradient-to-tr from-[#D4AF37] to-yellow-600 opacity-90 z-20" style={{ clipPath: 'polygon(0 100%, 0 0, 100% 100%)' }}></div>
 
-        {/* Top Header Section */}
-        <header className="w-full flex items-center justify-between p-4 md:p-8 z-30">
-          <div className="flex flex-col items-start gap-1">
-            <h1 className="text-2xl md:text-5xl font-black text-white drop-shadow-md tracking-tight">
+        {/* Header */}
+        <header className="w-full flex items-center justify-between px-4 py-3 md:p-8 z-30">
+          <div className="flex flex-col items-start gap-0.5">
+            <h1 className="text-xl sm:text-3xl md:text-5xl font-black text-white drop-shadow-md tracking-tight">
               سعر الذهب اليوم
             </h1>
-            <h2 className="text-sm md:text-2xl font-bold text-[#FADB5F] drop-shadow-sm">
+            <h2 className="text-xs sm:text-base md:text-2xl font-bold text-[#FADB5F] drop-shadow-sm">
               أخبار الذهب والأسواق العالمية
             </h2>
           </div>
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 z-30">
             <GoldenBadge size="lg" />
           </div>
         </header>
 
-        {/* Center Chart Section */}
-        <main className="flex-1 w-full px-3 md:px-12 relative z-20 flex flex-col items-center justify-center mb-8">
+        {/* Chart Section */}
+        <main className="w-full px-3 md:px-12 z-20 flex flex-col items-center">
           <div
             className="relative w-full bg-white border-[3px] md:border-[5px] border-black shadow-2xl rounded-sm overflow-hidden"
             dir="ltr"
-            style={{ height: 'clamp(280px, 50vw, 480px)' }}
+            style={{ height: 'clamp(260px, 48vw, 480px)' }}
           >
-            {/* Live Interactive Chart */}
             <TradingChart onDataProcessed={handleDataProcessed} />
+          </div>
 
-            {/* Overlapping badge at bottom center */}
-            <div className="absolute -bottom-7 left-1/2 transform -translate-x-1/2 z-30 pointer-events-none">
-              <GoldenBadge size="sm" />
-            </div>
+          {/* Badge below chart — in flow, not absolute */}
+          <div className="z-30 -mt-7 pointer-events-none">
+            <GoldenBadge size="sm" />
           </div>
         </main>
 
-        {/* Bottom Section */}
-        <footer className="w-full relative z-30 pb-8 pt-12 flex flex-col items-center mt-auto">
+        {/* Footer — all in normal flow, NO absolute children */}
+        <footer className="w-full z-30 flex flex-col items-center pb-6 mt-3">
           
-          {/* Breaking News Ribbon */}
-          <div className="absolute right-0 top-0 h-9 md:h-12 w-44 md:w-64 bg-gradient-to-r from-[#FADB5F] to-[#D4AF37] text-black font-black text-base md:text-2xl flex items-center justify-end px-4 md:px-6 shadow-lg rounded-l-md z-40">
-            <div className="absolute left-2 top-0 bottom-0 w-10 flex space-x-1.5 space-x-reverse skew-x-[30deg]">
-              <div className="w-1.5 h-full bg-black/80"></div>
-              <div className="w-1.5 h-full bg-black/80"></div>
-              <div className="w-1.5 h-full bg-black/80"></div>
+          {/* Breaking News Ribbon — right-aligned, in flow */}
+          <div className="w-full flex justify-end mb-2">
+            <div className="h-9 md:h-12 w-44 md:w-64 bg-gradient-to-r from-[#FADB5F] to-[#D4AF37] text-black font-black text-sm md:text-2xl flex items-center justify-end px-4 md:px-6 shadow-lg rounded-l-md relative">
+              <div className="absolute left-2 top-0 bottom-0 w-9 flex gap-1 skew-x-[30deg]">
+                <div className="w-1.5 h-full bg-black/80"></div>
+                <div className="w-1.5 h-full bg-black/80"></div>
+                <div className="w-1.5 h-full bg-black/80"></div>
+              </div>
+              <span className="relative z-10 ml-5 md:ml-12">خبر عاجل</span>
             </div>
-            <span className="relative z-10 ml-6 md:ml-12">خبر عاجل</span>
           </div>
 
-          <div className="w-full text-center px-3 relative z-20">
-            {/* Main Headline */}
-            <h3 className="text-lg md:text-4xl font-black leading-snug mb-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+          {/* News Text */}
+          <div className="w-full text-center px-3">
+            <h3 className="text-base sm:text-2xl md:text-4xl font-black leading-snug mb-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
               <span className="text-white">فرصة شراء للذهب بين </span>
               <span className="text-[#FADB5F]" style={{ transition: 'all 0.5s ease-in-out' }}>{buyTarget1} و {buyTarget2}</span>
             </h3>
-            
-            {/* Subtext */}
-            <p className="text-base md:text-2xl font-bold text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+            <p className="text-sm sm:text-xl md:text-2xl font-bold text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
               دولار وسط مؤشرات فنية داعمة للصعود
             </p>
           </div>
 
-          {/* Footer Logo text */}
-          <div className="absolute bottom-3 right-4 text-white/60 font-black text-base md:text-xl tracking-wider drop-shadow-md pointer-events-none">
-            GOLD2TODAY
+          {/* Footer logo */}
+          <div className="w-full flex justify-end px-4 mt-3">
+            <span className="text-white/60 font-black text-sm md:text-xl tracking-wider drop-shadow-md">GOLD2TODAY</span>
           </div>
         </footer>
-        
       </div>
     </div>
   );
