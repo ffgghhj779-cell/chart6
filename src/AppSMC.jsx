@@ -24,19 +24,48 @@ const GoldenBadge = ({ className = "", size = "lg" }) => {
 function AppSMC() {
   const [chartData, setChartData] = useState({
     currentPrice: null,
-    support: null,
     resistance: null,
-    demandZone: null
+    demandZone: null,
+    bslPrice: null,
+    obPrice: null,
+    liqPrice: null,
+    smallObPrice: null,
+    poiPrice: null,
   });
 
   const handleDataProcessed = (data) => {
     setChartData(data);
   };
 
-  // Create dynamic news text based on live fetched data
   const isDataReady = chartData.currentPrice !== null;
-  const buyTarget1 = isDataReady ? Math.floor(chartData.demandZone) : "---";
-  const buyTarget2 = isDataReady ? Math.ceil(chartData.support) : "---";
+
+  // Dynamic news logic: determine what zone the price is in RIGHT NOW
+  const getSmcHeadline = () => {
+    if (!isDataReady) return "جاري تحليل هيكل السوق...";
+    const { currentPrice, bslPrice, obPrice, liqPrice, smallObPrice, poiPrice, demandZone } = chartData;
+    if (currentPrice >= bslPrice)         return `الذهب اختبر السيولة (BSL) عند ${Math.round(bslPrice)}`;
+    if (currentPrice >= obPrice)          return `الذهب في منطقة Order Block عند ${Math.round(obPrice)}`;
+    if (currentPrice >= liqPrice)         return `الذهب عند مستوى السيولة ${Math.round(liqPrice)}`;
+    if (currentPrice >= smallObPrice)     return `الذهب في Small OB عند ${Math.round(smallObPrice)}`;
+    if (currentPrice >= poiPrice)         return `الذهب في منطقة الاهتمام (POI) عند ${Math.round(poiPrice)}`;
+    return `الذهب يحاول التعافي من منطقة الطلب ${Math.round(demandZone)}`;
+  };
+
+  const getSmcSubtext1 = () => {
+    if (!isDataReady) return "";
+    const { currentPrice, obPrice, liqPrice } = chartData;
+    if (currentPrice >= obPrice)  return "مؤشرات ضغط بيعي | ترقب للانعكاس";
+    if (currentPrice >= liqPrice) return "مؤشرات صعودية مؤقتة";
+    return "هيكل السوق لا يزال تحت الضغط";
+  };
+
+  const getSmcSubtext2 = () => {
+    if (!isDataReady) return "";
+    const { currentPrice, bslPrice, demandZone } = chartData;
+    const midPoint = (bslPrice + demandZone) / 2;
+    if (currentPrice >= midPoint) return `وسط اقتراب من المقاومة الرئيسية ${Math.round(bslPrice)}`;
+    return `وسط هيكل عام بعيد عن القمة ${Math.round(bslPrice)}`;
+  };
 
   return (
     <div className="min-h-screen bg-[#051024] flex items-center justify-center p-4 md:p-8 relative overflow-hidden">
@@ -101,19 +130,19 @@ function AppSMC() {
           </div>
 
           <div className="w-full text-center px-4 relative z-20">
-            {/* Main Headline */}
-            <h3 className="text-2xl md:text-4xl font-black leading-snug mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-              <span className="text-[#FADB5F]">الذهب يحاول التعافي</span>
+            {/* Main Headline - 100% Dynamic based on live SMC zone */}
+            <h3 className="text-2xl md:text-4xl font-black leading-snug mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" style={{ transition: 'all 0.5s ease-in-out' }}>
+              <span className="text-[#FADB5F]">{getSmcHeadline()}</span>
             </h3>
             
-            {/* Subtext 1 */}
-            <p className="text-xl md:text-3xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] mb-2">
-              مؤشرات صعودية مؤقتة
+            {/* Subtext 1 - Dynamic based on zone */}
+            <p className="text-xl md:text-3xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] mb-2" style={{ transition: 'all 0.5s ease-in-out' }}>
+              {getSmcSubtext1()}
             </p>
 
-            {/* Subtext 2 */}
-            <p className="text-lg md:text-2xl font-bold text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-              وسط هيكل عام لا يزال تحت الضغط
+            {/* Subtext 2 - Dynamic based on distance from BSL */}
+            <p className="text-lg md:text-2xl font-bold text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" style={{ transition: 'all 0.5s ease-in-out' }}>
+              {getSmcSubtext2()}
             </p>
           </div>
 

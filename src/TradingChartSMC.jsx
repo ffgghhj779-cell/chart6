@@ -46,14 +46,8 @@ export const TradingChart = ({ onDataProcessed }) => {
         const supportPrice = minPrice + (maxPrice-minPrice)*0.25;
         const demandPrice = minPrice;
         
-        if (onDataProcessed) {
-           onDataProcessed({
-               currentPrice: lastClose,
-               support: supportPrice,
-               resistance: maxPrice,
-               demandZone: demandPrice
-           });
-        }
+        // These will be set after range is calculated below — passed via a deferred call
+        // We store them in a ref to pass after zone computation
 
         // 1. Dynamic ZigZag Algorithm for Elliot Waves simulation & SMC structure
         const deviation = (maxPrice - minPrice) * 0.08; // 8% threshold
@@ -156,7 +150,22 @@ export const TradingChart = ({ onDataProcessed }) => {
         const liqPrice = minPrice + range * 0.6;
         const smallObPrice = minPrice + range * 0.35;
         const poiPrice = minPrice + range * 0.2;
-        // demandPrice is already declared above
+        // demandPrice is already declared above (= minPrice)
+
+        // Pass all SMC levels + current price to parent for dynamic news text
+        if (onDataProcessed) {
+          onDataProcessed({
+            currentPrice: lastClose,
+            support: supportPrice,
+            resistance: maxPrice,
+            demandZone: demandPrice,
+            bslPrice,
+            obPrice,
+            liqPrice,
+            smallObPrice,
+            poiPrice
+          });
+        }
 
         series.createPriceLine({ price: bslPrice, color: '#64748b', lineWidth: 2, axisLabelVisible: true, title: 'BSL' });
         series.createPriceLine({ price: obPrice, color: '#64748b', lineWidth: 2, axisLabelVisible: true, title: 'OB' });
