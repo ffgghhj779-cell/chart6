@@ -12,9 +12,9 @@ export const TradingChart = ({ onDataProcessed }) => {
     
     const fetchData = async () => {
       try {
-        // PAXG/USDT on Binance perfectly tracks real Gold (XAU) prices in USD.
-        // It's a free, public API with no CORS issues.
-        const response = await fetch('https://api.binance.com/api/v3/klines?symbol=PAXGUSDT&interval=1d&limit=150');
+        // Fetch data from Vercel Serverless Function (proxy to Binance)
+        const response = await fetch('/api/klines');
+        if (!response.ok) throw new Error('Failed to fetch from API proxy');
         const rawData = await response.json();
         
         const candles = [];
